@@ -19,7 +19,24 @@ disp('Transmitancja dyskretna:');
 disp(['      ', num2str(num(2)), ' ',format_var(num(3)), 'z^-1 ', format_var(num(4)), 'z^-2']);
 disp('   -----------------------------------------');
 disp(['   ', num2str(den(1)), ' ',format_var(den(2)), 'z^-1 ', format_var(den(3)), 'z^-2 ', format_var(den(4)), 'z^-3']);
+disp(' ');
 
+% Wyznaczenie zer i biegunów transmitancji ci¹g³ej
+tr_cont_zeros = roots(nominator);
+tr_cont_poles = roots(denominator);
 
+disp('Zera transmitancji ci¹g³ej: ');
+disp(tr_cont_zeros);
+disp('Bieguny transmitancji ci¹g³ej: ');
+disp(tr_cont_poles);
+
+% Wyznaczenie zer i biegunów transmitancji dyskretnej
+tr_dis_zeros = roots(num);
+tr_dis_poles = roots(den);
+
+disp('Zera transmitancji dyskretnej: ');
+disp(tr_dis_zeros);
+disp('Bieguny transmitancji dyskretnej: ');
+disp(tr_dis_poles);
 
 
