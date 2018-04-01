@@ -34,6 +34,7 @@ disp(tr_cont_poles);
 tr_dis_zeros = roots(num);
 tr_dis_poles = roots(den);
 
+% Wypisanie wyników 
 disp('Zera transmitancji dyskretnej: ');
 disp(tr_dis_zeros);
 disp('Bieguny transmitancji dyskretnej: ');
