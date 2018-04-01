@@ -40,4 +40,35 @@ disp(tr_dis_zeros);
 disp('Bieguny transmitancji dyskretnej: ');
 disp(tr_dis_poles);
 
+% Symulacja testowa
+sim('zad1_test');
 
+% Rysowanie wykresu
+fig = figure('Name', 'Porównanie odpowiedzi skokowych transmitancji ci¹g³ej i dyskretnej');
+set(gcf, 'Position', [100, 100, 800, 600])
+hold on;
+grid on;
+grid minor;
+plot(sim_cont);
+plot(sim_disc);
+legend('Model ci¹g³y', 'Model dyskretny', 'Location', 'northeast');
+title('Odpowiedzi skokowe transmitancji ci¹g³ej i dyskretnej dla Tp', 'FontName', 'Helvetica');
+xlabel('Czas t');
+ylabel('Wyjœcie modelu y');
+
+% Stwórz folder na wykresy jeœli jeszcze nie istnieje
+if(exist('figures', 'dir') == 0)
+    mkdir('figures');
+end
+
+if(exist('figures\zad1', 'dir') == 0)
+    mkdir('figures\zad1');
+end
+
+% Zapis wykresu do pliku
+name = strcat('figures\zad1\porownanie');
+set(gcf, 'PaperUnits', 'centimeters');
+set(gcf, 'PaperPosition', [0 0 80 60]); %x_width=10cm y_width=15cm
+set(gcf,'PaperPositionMode','auto');
+print(name,'-dpng','-r0');
+hold off;
