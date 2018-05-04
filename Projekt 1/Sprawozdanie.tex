@@ -1,0 +1,1198 @@
+\documentclass[a4paper,titlepage,11pt,floatssmall]{mwrep}
+\usepackage[left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
+\usepackage[OT1]{fontenc}
+\usepackage{polski}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{mathrsfs}
+\usepackage{rotating}
+\usepackage{pgfplots}
+\usetikzlibrary{pgfplots.groupplots}
+
+\usepackage{siunitx}
+
+\usepackage{float}
+\definecolor{szary}{rgb}{0.95,0.95,0.95}
+\sisetup{detect-weight,exponent-product=\cdot,output-decimal-marker={,},per-mode=symbol,binary-units=true,range-phrase={-},range-units=single}
+
+\SendSettingsToPgf
+\title{\bf Sprawozdanie z projektu nr 1\\ Zadanie nr 47  \vskip 0.1cm}
+\author{Jakub Sikora \and nr albumu 283418}
+\date{\today}
+\pgfplotsset{compat=1.15}	
+\begin{document}
+
+
+\makeatletter
+\renewcommand{\maketitle}{\begin{titlepage}
+		\begin{center}{\LARGE {\bf
+					Wydział Elektroniki i Technik Informacyjnych}}\\
+			\vspace{0.4cm}
+			{\LARGE {\bf Politechnika Warszawska}}\\
+			\vspace{0.3cm}
+		\end{center}
+		\vspace{5cm}
+		\begin{center}
+			{\bf \LARGE Sterowanie procesami \vskip 0.1cm}
+		\end{center}
+		\vspace{1cm}
+		\begin{center}
+			{\bf \LARGE \@title}
+		\end{center}
+		\vspace{2cm}
+		\begin{center}
+			{\bf \Large \@author \par}
+		\end{center}
+		\vspace*{\stretch{6}}
+		\begin{center}
+			\bf{\large{Warszawa, \@date\vskip 0.1cm}}
+		\end{center}
+	\end{titlepage}
+	}
+\makeatother
+\maketitle
+
+\tableofcontents
+
+
+% pierwsza sekcja
+\chapter{Model procesu }
+\indent{} W ramach projektu należało zbadać proces dynamiczny opisany transmitancją ciągłą:
+
+\begin{equation*}
+G(s) = \frac{(s + 2,5)(s + 7)}{(s - 8)(s + 9)(s + 10)} 
+\end{equation*}
+
+\indent{} Opisany proces jest procesem trzeciego rzędu. Ma dwa zera licznika $s_{l_1} = -2,5$ oraz  $s_{l_2} = -7$, a także trzy bieguny $s_{b_1} = 8$, $s_{b_2} = -9$ i $s_{b_3} = -10$. Proces ten jest niestabilny, świadczy o tym biegun $s_{b_1} = 8$, który ma dodatnią część rzeczywistą. 
+
+
+
+\chapter{Zadania projektowe}
+
+\section{Zadanie 1}
+W ramach zadania 1, na podstawie transmitancji ciągłej, wyznaczyłem transmitancję dyskretną $G(z)$. W tym celu, zgodnie z poleceniem, założyłem okres próbkowania $T_p = 0,25s$ oraz ekstrapolator zerowego rzędu. Ekstrapolator zerowego rzędu to matematyczny sposób konwersji układu ciągłego na dyskretny, poprzez podtrzymanie wartości sygnału ciągłego przez cały okres próbkowania, aż do następnej próbki. Uzyskany wyjściowy dyskretny sygnał ma wtedy postać schodkową. \\
+\indent{} W celu wyznaczenia transmitancji dyskretnej, można posłużyć się wzorem:
+
+\begin{equation*}
+G(z) = \frac{z-1}{z} \mathcal{Z} \bigg\{ \mathcal{L}^{-1} \bigg\{ \frac{G(s)}{s} \bigg\} \bigg\}  
+\end{equation*}
+
+Aby policzyć transformatę $\mathcal{Z}$ należy rozłożyć transmitancję ciągłą na ułamki proste:
+
+\begin{equation*}
+\frac{G(s)}{s} =  \frac{(s + 2,5)(s + 7)}{(s - 8)(s + 9)(s + 10)}  = \frac{s^2 + 9,5s + 17,5}{(s - 8)(s + 9)(s + 10)s} = \frac{A}{s-8} + 
+\frac{B}{s+9} + \frac{C}{s+10} + \frac{D}{s} 
+\end{equation*}
+
+Po rozwiązaniu układu równań otrzymałem następujące współczynniki:
+\begin{center}$A = 0,0643, B = 0,085, C = -0,125,  D = -0,0243 $\end{center}
+
+Ostatecznie:
+\begin{equation*}
+\frac{G(s)}{s} = \frac{0,0643}{s-8} + 
+\frac{0,085}{s+9} - \frac{0,125}{s+10} - \frac{0,0243}{s} 
+\end{equation*}
+
+Przy użyciu tablicy transformat Laplace'a i Laurenta, zamieniłem dziedzinę $s$ na dziedzinę $z$. 
+
+\begin{equation*}
+G(z) = \frac{z-1}{z}\bigg( \frac{0,0643}{z - e^{8 T_p}} + 
+\frac{0,085}{z - e^{-8 T_p}} - \frac{0,125}{z - e^{-10 T_p}} - \frac{0,0243}{z - 1} \bigg) 
+\end{equation*}
+
+Po sprowadzeniu do wspólnego mianownika i poskracaniu nadmiarowych elementów otrzymałem transmitancję dyskretną o postaci: 
+
+\begin{equation*}
+G(z) = 0,4496\frac{(z - 0,664)(z - 0,1554)}{(z - 7,389)(z - 0,105)(z - 0,082)} 
+\end{equation*}
+
+W celu uzyskania transmitancji dyskretnej z transmitancji ciągłej można się również posłużyć Matlabem, korzystając z polecenia \texttt{c2d(tf, T, 'zoh')}, gdzie \texttt{tf} to transmitacja ciągła a \texttt{T} to okres próbkowania. Za pomocą tego polecenia uzyskałem następującą transmitancję dyskretną:
+
+\begin{equation*}
+G(z) = 0,4496\frac{(z - 0,6638)(z - 0,1568)}{(z - 7,3891)(z - 0,1054)(z - 0,0821)} 
+\end{equation*}
+
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[width = \textwidth]{figures/zad1/porownanie.pdf}
+\caption{Porównanie odpowiedzi skokowej transmitancji ciągłej i dyskretnej uzyskanej ręcznie}
+\end{figure}
+
+\begin{center}
+\begin{tabular}{|c|c|c|c|} \hline
+Wartości & Ciągła & Dyskretna & Dyskretna (Matlab) \\
+\hline \hline
+Zera & $-2,5$; $-7$ & $0,664$; $0,1554$  & $0,6638$; $0,1568$\\
+\hline
+Bieguny & $8$; $-9$; $-10$ & $7,389$; $0,105$; $0,082$ & $7,3891$; $0,1054$; $0,0821$ \\
+\hline 
+\end{tabular}
+\end{center}
+
+W dalszych rozważaniach będę korzystał z transmitancji policzonej własnoręcznie, ponieważ odpowiadająca jej wartość odpowiedzi skokowej doskonale odpowiada wartościom odpowiedzi skokowej transmitancji ciągłej w chwilach próbkowania. Do dalszych rozważań przydatna będzie inna postać transmitancji w której wszystkie nawiasy są wymnożone oraz całość została podzielona przez $\frac{z^{-3}}{z^{-3}}$
+
+\begin{equation*}
+G(z) = \frac{0,4496z^{-1} - 0,3684z^{-2} + 0,0464z^{-3}}{1 - 7,576z^{-1} + 1,3904z^{-2} - 0,0636z^{-3}}
+\end{equation*}
+
+\newpage
+\section{Zadanie 2}
+\indent{} Mając transmitancję dyskretną, można w łatwy sposób przejść do równań stanu, stosując dwa sposoby omawiane wcześniej na wykładzie. 
+
+W ramach przypomnienia, liniowy proces dyskretny w przestrzeni stanów opisany jest następującym układem równań. 
+
+\begin{equation*}
+x[k+1] = \mathbf{A}x[k] + \mathbf{B}u[k] 
+\end{equation*}
+\begin{equation*}
+y[k] = \mathbf{C}x[k] + \mathbf{D}u[k] 
+\end{equation*}
+
+\subsection{Wariant 1}
+\indent{} W pierwszym wariancie, posłużyłem się pomocniczym sygnałem $E(z)$ o postaci:
+
+\begin{equation*}
+E(z) = \frac{U(z)}{1 - 7,576z^{-1} + 1,3904z^{-2} - 0,0636z^{-3}}
+\end{equation*}
+
+Po przekształceniu tego równania uzyskałem wzór na $E(z)$:
+\begin{equation*}
+E(z) = U(z) +  7,576z^{-1}E(z) - 1,3904z^{-2}E(z) + 0,0636z^{-3}E(z)
+\end{equation*}
+
+Wyjście sygnału można przedstawić jako zależność od $E(z)$:
+\begin{equation*}
+Y(z) = 0,4496z^{-1}E(z) - 0,3684z^{-2}E(z) + 0,0464z^{-3}E(z)
+\end{equation*}
+
+Następnie przyporządkowałem zmienne stanu $x_1$, $x_2$ i $x_3$, sygnałom $z^{-1}E(z)$, $z^{-2}E(z)$ i $z^{-3}E(z)$.
+
+Po przejściu w dziedzinę czasu przy pomocy odwrotnej transformaty Laurenta otrzymałem następujące równania:
+
+
+\begin{equation*}
+x_1[k+1] = 7,576x_1[k] - 1,3904x_2[k] + 0,0636x_3[k] + u[k]
+\end{equation*}
+\begin{equation*}
+x_2[k+1] = x_1[k]
+\end{equation*}
+\begin{equation*}
+x_3[k+1] = x_2[k]
+\end{equation*}
+\begin{equation*}
+y[k] = 0,4496x_1[k]- 0,3684x_2[k] + 0,0464x_3[k]
+\end{equation*}
+
+Model ten można zapisać w postaci wektorowo-macierzowej:
+
+$$
+\mathbf{A} =
+\left[ \begin{array}{ccc}
+7,576 & -1,3904 & 0,0636 \\
+1 & 0 & 0  \\
+0 & 1 & 0  \\
+\end{array} \right]
+$$
+
+$$
+\mathbf{B} =
+\left[\begin{array}{c}
+1 \\
+0 \\
+0 \\
+\end{array} \right]
+$$
+
+$$
+\mathbf{C} =
+\left[ \begin{array}{ccc}
+0,4496 & -0,3684 & 0,0464\\
+\end{array} \right]
+$$
+
+$$
+\mathbf{D} = 0
+$$
+
+\newpage
+
+\begin{figure}[H]
+\centering
+\includegraphics[width = \textwidth]{figures/zad2/wariant1.pdf}
+\caption{Reprezentacja graficzna procesu w przestrzeni stanu w wariancie 1}
+\end{figure}
+
+\newpage
+\subsection{Wariant 2}
+Model w przestrzeni stanów można łatwo uzyskać korzystając z samej definicji transmitancji. 
+
+\begin{equation*}
+G(z) = \frac{Y(z)}{U(z)} = \frac{0,4496z^{-1} - 0,3684z^{-2} + 0,0464z^{-3}}{1 - 7,576z^{-1} + 1,3904z^{-2} - 0,0636z^{-3}}
+\end{equation*}
+
+Mnożąc na krzyż uzyskałem:
+\begin{equation*}
+Y(z) - 7,576z^{-1}Y(z) + 1,3904z^{-2}Y(z) - 0,0636z^{-3}Y(z) = (0,4496z^{-1} - 0,3684z^{-2} + 0,0464z^{-3})U(z)
+\end{equation*}
+
+Po kilku trywialnych przekształceniach otrzymałem:
+
+\begin{equation*}
+Y(z) = z^{-1}\big(7,576Y(z) + 0,4496U(z) +
+\end{equation*}
+\begin{equation*}
+z^{-1}\big(-1,3904Y(z) - 0,3684U(z) +
+\end{equation*}
+\begin{equation*}
+z^{-1}\big( 0,0464U(z) + 0,4496U(z) \big) \big) \big)
+\end{equation*}
+
+Następnie przyporządkowałem zmienne stanu:
+\begin{equation*}
+X_3(z) = z^{-1}(0,0464U(z) + 0,0636Y(z))
+\end{equation*}
+\begin{equation*}
+X_2(z) = z^{-1}(-1,3904Y(z) - 0,3685U(z) + X_3(z))
+\end{equation*}
+\begin{equation*}
+X_1(z) = z^{-1}(7,576Y(z) + 0,4496U(z) + X_2(z))
+\end{equation*}
+\begin{equation*}
+Y(z) = X_1(z)
+\end{equation*}
+
+Po przejściu na dziedzinę czasu otrzymałem następujące równania:
+\begin{equation*}
+x_1[k+1] = 7,576x_1[k] + x_2[k] + 0,4496u[k]
+\end{equation*}
+\begin{equation*}
+x_2[k+1] = -1,3904x_1[k] + x_3[k] - 0,3684u[k]
+\end{equation*}
+\begin{equation*}
+x_3[k+1] = 0,0636x_1[k] + 0,0464u[k] 
+\end{equation*}
+\begin{equation*}
+y[k] = x_1[k]
+\end{equation*}
+
+
+W postaci wektorowo-macierzowej, proces wygląda w następujący sposób:
+
+$$
+\mathbf{A} =
+\left[ \begin{array}{ccc}
+7,576 & 1 & 0 \\
+-1,3904 & 0 & 1  \\
+0,0636 & 0 & 0  \\
+\end{array} \right]
+$$
+
+$$
+\mathbf{B} =
+\left[\begin{array}{c}
+0,4496 \\
+-0,3684 \\
+0,0464 \\
+\end{array} \right]
+$$
+
+$$
+\mathbf{C} =
+\left[ \begin{array}{ccc}
+1 & 0 & 0\\
+\end{array} \right]
+$$
+
+$$
+\mathbf{D} = 0
+$$
+
+\newpage
+
+\begin{figure}[H]
+\centering
+\includegraphics[width = \textwidth]{figures/zad2/wariant2.pdf}
+\caption{Reprezentacja graficzna procesu w przestrzeni stanu w wariancie 2}
+\end{figure}
+
+
+\section{Zadanie 3}
+\indent{} Przekształcenie transmitancji do modelu w przestrzeni stanów powinno być jednoznaczne, czyli przy przekształceniu uzyskanych modeli w przestrzeni stanów do transmitancji, powinniśmy uzyskać ten sam wynik. Udowodnienie tego faktu było celem zadania 3.
+
+\indent{} Na wstępie należy zauważyć trzy istotne fakty na temat uzyskanych macierzy i wektorów. Okazuje się że:
+
+\begin{equation*}
+\mathbf{A_1} = \mathbf{A_2}^{T}
+\end{equation*}
+\begin{equation*}
+\mathbf{B_1} = \mathbf{C_2}^{T}
+\end{equation*}
+\begin{equation*}
+\mathbf{C_1} = \mathbf{B_2}^{T}
+\end{equation*}
+
+Co więcej, okazuje się że:
+
+\begin{equation*}
+(z\mathbf{I} - \mathbf{A_1}) = (z\mathbf{I} - \mathbf{A_2})^{T}
+\end{equation*}
+
+Oznaczmy jako $G_1(z)$ transmitancję dyskretną uzyskaną z zamiany modelu w przestrzeni stanów w wariancie 1 i analogicznie $G_2(z)$ jako wynik transformacji modelu w wariancie 2. 
+
+Zakładamy że:
+$$
+G_1(z) = G_2(z)
+$$
+
+Korzystając ze wzoru na transmitancję:
+
+$$
+\mathbf{C_1} (z\mathbf{I} - \mathbf{A_1})^{-1}\mathbf{B_1} = \mathbf{C_2} (z\mathbf{I} - \mathbf{A_2})^{-1}\mathbf{B_2}
+$$
+
+Do drugiej części wzoru podstawiłem wcześniejsze spostrzeżenia:
+
+$$
+\mathbf{C_1} (z\mathbf{I} - \mathbf{A_1})^{-1} \mathbf{B_1} = \mathbf{B_1}^{T} [(z\mathbf{I} - \mathbf{A_1})^{T}]^{-1} \mathbf{C_1}^{T}
+$$
+
+Następnie korzystam z przemienności transpozycji z odwrotnością:
+$$
+\mathbf{C_1} (z\mathbf{I} - \mathbf{A_1})^{-1} \mathbf{B_1} = \mathbf{B_1}^{T} [(z\mathbf{I} - \mathbf{A_1})^{-1}]^{T} \mathbf{C_1}^{T}
+$$
+
+Ostatecznie zauważam że iloczyn elementów transponowanych jest transpozycją iloczynu elementów w odwrotnej kolejności:
+
+$$
+\mathbf{C_1} (z\mathbf{I} - \mathbf{A_1})^{-1} \mathbf{B_1} = (\mathbf{C_1} (z\mathbf{I} - \mathbf{A_1})^{-1} \mathbf{B_1})^{T}
+$$
+
+Biorąc pod uwagę że wyrażenie pod transpozycją jest funkcją skalarną zmiennej zespolonej $z$, czyli transpozycja nie będzie miała wpływu na jej wartość, dlatego też można ją pominąć.
+
+$$
+\mathbf{C_1} (z\mathbf{I} - \mathbf{A_1})^{-1} \mathbf{B_1} = \mathbf{C_1} (z\mathbf{I} - \mathbf{A_1})^{-1} \mathbf{B_1}
+$$
+
+$$
+L = P
+$$
+
+Ostatecznie otrzymujemy tożsamość co dowodzi że oba modele w przestrzeni stanów dają tą samą transmitancję. 
+
+\newpage
+
+\section{Zadanie 4}
+
+\indent{} Po wyznaczeniu modeli w przestrzeni stanów, mogłem je zasymulować, porównać odpowiedzi skokowe z odpowiedzią skokową transmitancji oraz zweryfikować wcześniejsze kroki. 
+
+\subsection{Zerowe warunki początkowe}
+
+\indent{} Pierwszą symulację przeprowadziłem przy zerowych warunkach początkowych:
+
+$$
+x_0 =
+\left[\begin{array}{c}
+0 \\
+0 \\
+0 \\
+\end{array} \right]
+$$
+
+Wszystkie trzy modele pobudziłem skokiem jednostkowym z wartości 0 do 1 w $t = 1s$.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width = \textwidth]{figures/zad4/porownanie_0_0_0.pdf}
+\caption{Odpowiedzi skokowe trzech modeli dla zerowych warunków początkowych}
+\end{figure}
+
+Zgodnie z oczekiwaniami, wszystkie trzy odpowiedzi pokrywają się co do wartości. Żaden z modeli nie jest stabilny, tak samo jak rozważana na początku transmitancja ciągła. W transmitancji ciągłej znajdował się biegun $s_b = 8$, który ma dodatnią część rzeczywistą. Ten biegun powoduje niestabilność całego procesu. W transmitancji dyskretnej, bieguny są stabilne wtedy i tylko wtedy, gdy znajdują się kole jednostkowym. W uzyskanej transmitancji dyskretnej pojawia się biegun $z_b = 7,389$, który powoduje że cały proces dyskretny jest niestabilny.
+
+
+\subsection{Niezerowe warunki początkowe}
+\indent{} Kolejnym krokiem było pobudzenie modelu tym samym skokiem jednostkowym, tylko że przy niezerowych warunkach początkowych. Pierwszą próbę wykonałem przy następujących warunkach początkowych:
+ 
+$$
+x_0 =
+\left[\begin{array}{c}
+1 \\
+0 \\
+0 \\
+\end{array} \right]
+$$
+
+\begin{figure}[H]
+\centering
+\includegraphics[width = \textwidth]{figures/zad4/porownanie_1_0_0.pdf}
+\caption{Odpowiedzi skokowe trzech modeli dla niezerowych warunków początkowych}
+\end{figure}
+
+\indent{}W tym przypadku, wszystkie trzy odpowiedzi różnią się od siebie co do wartości. Dodatkowo zmieniła się skala wykresu, wartości modelu w wariancie 1 rosną zdecydowanie szybciej niż w pozostałych. \\
+\indent{} Modele w przestrzeni stanów różnią się od swojego odpowiednika w dziedzinie czętotliwości tym że, transmitancja nie bierze pod uwagę wartości początkowych. Opis częstotliwościowy obiektu jest dobry gdy występują zerowe warunki początkowe.\\
+\indent{} Pozostało pytanie, dlaczego modele w przestrzeni stanów różnią się od siebie. Okazuje się że w każdym z modeli, zmienne stanu mają inne znaczenie. Przez tą rozbieżność, inne warunki początkowe powodują inne odpowiedzi różnych wariantów. Jest to spowodowane niejednoznacznością przejścia od transmitancji do modelu w przestrzeni stanów. Sytuacja ta, zgodnie z oczekiwaniami, powtarza się dla innych warunków początkowych.
+
+\newpage
+
+\begin{figure}[H]
+\centering
+\includegraphics[width = 0.9\textwidth]{figures/zad4/porownanie_0_1_0.pdf}
+\caption{Odpowiedzi skokowe trzech modeli dla niezerowych warunków początkowych}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width = 0.9\textwidth]{figures/zad4/porownanie_0_0_1.pdf}
+\caption{Odpowiedzi skokowe trzech modeli dla niezerowych warunków początkowych}
+\end{figure}
+
+\newpage
+\section{Zadanie 5}
+\indent{} Dalsze rozważania będę prowadził dla drugiej wersji modelu w przestrzeni stanów.
+\indent{} Kolejnym poleceniem było sprawdzenie sterowalności i obserwowalności modelu. Aby sprawdzić sterowalność modelu należy sprawdzić rząd macierzy sterowalności dla tego układu:
+
+$$
+\mathbf{S} =
+\left[ \begin{array}{ccc}
+\mathbf{B} & \mathbf{A}\mathbf{B} & \mathbf{A}^{2}\mathbf{B}\\
+\end{array} \right]
+$$
+
+Macierz ta ma postać:
+$$
+\mathbf{S} =
+\left[ \begin{array}{ccc}
+0.4496 & 3.0378 & 22.4354 \\
+-0.3684 & -0.5787 & -4.1951  \\
+0.0464 & 0.0286  & 0.1932 \\
+\end{array} \right]
+$$
+Za pomocą polecenia \texttt{rank} sprawdziłem rząd tej macierzy. Okazuje się że $r(\mathbf{S}) = 3$, co równe jest rzędowi obiektu. Świadczy to że obiekt jest w pełni sterowalny.
+
+Podobnie sprawdziłem macierz obserwowalności, która dana jest wzorem:
+
+$$
+\mathbf{Q} =
+\left[ \begin{array}{c}
+\mathbf{C} \\
+\mathbf{C}\mathbf{A} \\
+\mathbf{C}\mathbf{A}^{2}\\
+\end{array} \right]
+$$
+
+Po podstawieniu:
+$$
+\mathbf{Q} =
+\left[ \begin{array}{ccc}
+1 & 0 & 0 \\
+7,576 & 1 & 0  \\
+56.0054 & 7.576  & 1 \\
+\end{array} \right]
+$$
+
+W tym wypadku jest to macierz trójkątna, co znaczy że rząd tej macierzy jest maksymalny czyli równy 3. Z tego wynika że proces jest w pełni obserwowalny. \\
+
+W tym przypadku, nie było koniecznym liczenie rzędów macierzy sterowalności i obserwowalności. Model musiał być w pełni sterowalny i obserwowalny, ponieważ powstał z przekształcenia istniejącej wcześniej transmitancji, a o transmitancji możemy mówić tylko w przypadku obiektów sterowalnych i obserwowalnych. 
+
+\section{Zadanie 6}
+\indent Aby ustabilizować proces, należy przemieścić bieguny procesu do koła jednostkowego. W tym celu należy zastosować regulator ze sprzężeniem od stanu. Równanie takiego regulatora wygląda następująco:
+
+\[
+u[k] = -
+\begin{bmatrix}
+    k1  &  k2  & k3    \\     
+\end{bmatrix}
+\begin{bmatrix}
+    x_1     \\
+    x_2		\\
+    x_3      
+\end{bmatrix} 
+\]
+
+co w skrócie można zapisać jako:
+
+\begin{equation*}
+u[k] = - \mathbf{K}x[k]
+\end{equation*}
+
+Struktura układu regulacji wyglądała tak jak na rysunku poniżej:
+\begin{figure}[H]
+\centering
+\includegraphics[width = 0.9\textwidth]{figures/zad6/general.pdf}
+\caption{Ogólna struktura układu regulacji}
+\end{figure}
+
+\newpage
+
+Wykorzystując model z regulatorem, przystąpiłem do symulacji procesu dla różnych biegunów układu. Przyjąłem warunek początkowy:
+
+$$
+x(0) =
+\left[\begin{array}{c}
+1  \\
+-5 \\
+1  \\
+\end{array} \right]
+$$
+
+oraz warunek końcowy:
+
+$$
+x(t_{konc}) =
+\left[\begin{array}{c}
+0  \\
+0 \\
+0  \\
+\end{array} \right]
+$$
+
+\subsection{Wersja pierwsza}
+\indent W wersji pierwszej regulatora założyłem że regulator ma trzy takie same bieguny rzeczywiste $z_b$. Pierwszy eksperyment wykonałem dla biegunów umiejscowionych w $z_b = 0,1$.
+\bigskip 
+\\
+\\
+\\
+\\
+\\
+\begin{figure}[H]
+\centering
+\includegraphics[width = 0.5\textwidth]{figures/zad6/p1_1_bieguny.pdf}
+\caption{Położenie biegunów układu, na tle jednostkowego koła stabilności}
+\end{figure}
+\newpage
+\begin{figure}[H]
+\centering
+\includegraphics[width = \textwidth]{figures/zad6/p1_1_regulator.pdf}
+\caption{Przebiegi zmiennych stanu $x_1 = y$, $x_2$, $x_3$ i sterowania $u$}
+\end{figure}
+
+Jak widać na powyższych przebiegach, regulator zgodnie z oczekiwaniami jest bardzo szybki. Wyzerowanie zmiennych stanów następuje w czas około $1s$ co przy okresie próbkowania $T_p = 0,25$ daje 4 próbki. Przeregulowanie wyjścia jest niewielkie, natomiast sygnał sterujący zmienia się w sposób gwałtowny co może nie być realizowane na rzeczywistych układach. Dodatkową zaletą jest fakt że sygnał sterujący nie przyjmuje dużych wartości.\\
+\newpage
+\indent Kolejny eksperyment wykonałem dla trzech rzeczywistych biegunów ulokowanych w $z_b = 0,3$.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width = 0.5\textwidth]{figures/zad6/p1_2_bieguny.pdf}
+\caption{Położenie biegunów układu, na tle jednostkowego koła stabilności}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width = \textwidth]{figures/zad6/p1_2_regulator.pdf}
+\caption{Przebiegi zmiennych stanu $x_1 = y$, $x_2$, $x_3$ i sterowania $u$}
+\end{figure}
+\newpage
+
+\indent Przy takim ulokowaniu biegunów, udało się uzyskać podobny czas regulacji wyjścia równy około $1,5s$ co przekłada się na 6 próbek. Regulacja pozostałych zmiennych stanu jest wolniejsza jednak nadal akceptowalna. Znacząco poprawiła się zmienność sygnału sterującego, w dodatku sterowanie nadal zawiera się w niewielkich wartościach. \\
+\indent Ponownie zwiększyłem moduł biegunów, tym razem do wartości $z_b = 0,5$.
+\begin{figure}[H]
+\centering
+\includegraphics[width = 0.5\textwidth]{figures/zad6/p1_3_bieguny.pdf}
+\caption{Położenie biegunów układu, na tle jednostkowego koła stabilności}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width = \textwidth]{figures/zad6/p1_3_regulator.pdf}
+\caption{Przebiegi zmiennych stanu $x_1 = y$, $x_2$, $x_3$ i sterowania $u$}
+\end{figure}
+\newpage
+
+Podczas zbliżania się do granicy stabilności, można zauważyć że czas regulacji zwiększa się. Przy trzech biegunach w $z_b = 0,5$, czas w którym wszystkie zmienne stanu się zerują wynosi około $4s$, co daje 16 próbek. Nadal występuje przeregulowanie wyjścia. Sygnał sterujący zmienia się wolniej niż w przypadku poprzednich regulatorów i nadal operuje na stosunkowo małych wartościach.
+
+\indent Postanowiłem sprawdzić jak zachowa się układ regulacji gdy jeszcze bardziej zbliżę się do granicy stabilności. W ramach kolejnego eksperymentu, ulokowałem bieguny w $z_b = 0,8$.
+\bigskip
+\\
+\\
+\begin{figure}[H]
+\centering
+\includegraphics[width = \textwidth]{figures/zad6/p1_4_regulator.pdf}
+\caption{Przebiegi zmiennych stanu $x_1 = y$, $x_2$, $x_3$ i sterowania $u$}
+\end{figure}
+\newpage
+
+\begin{figure}[H]
+\centering
+\includegraphics[width = 0.5\textwidth]{figures/zad6/p1_4_bieguny.pdf}
+\caption{Położenie biegunów układu, na tle jednostkowego koła stabilności}
+\end{figure}
+
+Jak widać na powyższych przebiegach, taki układ regulacji słabo spełnia swoje zadanie. Czas regulacji jest bardzo długi, wyzerowanie zmiennych stanu trwa ponad $10s$, w dodatku występuje bardzo duże przeregulowanie wyjścia. Sterowanie w stosunku do wartości maksymalnej zmienia się łagodnie w stosunku do wartości maksymalnej, jednak poruszą się po bardzo szerokim zakresie wartości i uzyskuje olbrzymią, w porównaniu do poprzednich regulatorów, wartość maksymalną.
+
+\newpage
+
+Do tej pory lokowałem bieguny o dodatniej części rzeczywistej. Kilka następnych eksperymentów przeprowadzę przy biegunach o ujemnej części rzeczywistej. Zgodnie z teorią, takie bieguny powodują oscylacje znaku i są nazywane \emph{biegunami dzwoniącymi}. Na początku umieściłem bieguny w $z_b = -0,1$.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width = 0.5\textwidth]{figures/zad6/p1_5_bieguny.pdf}
+\caption{Położenie biegunów układu, na tle jednostkowego koła stabilności}
+\end{figure} 
+
+\begin{figure}[H]
+\centering
+\includegraphics[width = \textwidth]{figures/zad6/p1_5_regulator.pdf}
+\caption{Przebiegi zmiennych stanu $x_1 = y$, $x_2$, $x_3$ i sterowania $u$}
+\end{figure}
+\newpage
+
+Na przebiegach możemy zauważyć że faktycznie oscylacje powstały, jednak z powodu małego modułu biegunów, są one mało widoczne. Czas regulacji jest bardzo krótki, w granicach $1,5s$, jednak dłuższy niż w przypadku analogicznych biegunów po dodatniej stronie osi liczb rzeczywistych. Sygnał sterujący zmienia się gwałtownie ale przyjmuje stosunkowo małe wartości. 
+
+\indent Kolejny eksperyment wykonałem dla $z_b = -0.5$
+\begin{figure}[H]
+\centering
+\includegraphics[width = 0.5\textwidth]{figures/zad6/p1_6_bieguny.pdf}
+\caption{Położenie biegunów układu, na tle jednostkowego koła stabilności}
+\end{figure} 
+
+\begin{figure}[H]
+\centering
+\includegraphics[width = \textwidth]{figures/zad6/p1_6_regulator.pdf}
+\caption{Przebiegi zmiennych stanu $x_1 = y$, $x_2$, $x_3$ i sterowania $u$}
+\end{figure}
+\newpage
+
+Na powyższych przebiegach oscylacje są już o wiele bardziej  widoczne. Czas regulacji wydłużył się do $4s$, co daje 16 próbek. Oscylacje znaku powodują dużą zmienność zmiennych stanu oraz sygnału sterującego. Dodatkowo, sygnał sterujący zmienia się w dużym zakresie.\\
+\indent Ostatni eksperyment wykonałem dla trzech biegunów ulokowanych w $z_b = -0,8$.
+\begin{figure}[H]
+\centering
+\includegraphics[width = 0.5\textwidth]{figures/zad6/p1_7_bieguny.pdf}
+\caption{Położenie biegunów układu, na tle jednostkowego koła stabilności}
+\end{figure} 
+
+\begin{figure}[H]
+\centering
+\includegraphics[width = \textwidth]{figures/zad6/p1_7_regulator.pdf}
+\caption{Przebiegi zmiennych stanu $x_1 = y$, $x_2$, $x_3$ i sterowania $u$}
+\end{figure}
+\newpage
+
+Uzyskany układ regulacji jest do tej pory najgorszym uzyskanym. Czas regulacji jest bardzo długi i wynosi ponad $10s$, co daje ponad 40 próbek. Zmienne stanu oscylują w bardzo dużym zakresie, amplitudy oscylacji są kilkaset razy większe od stanów początkowych. Sygnał sterujący przez oscylacje zmienia się gwałtownie i przyjmuje gigantyczne wartości. 
+
+W ramach ostatniego eksperymentu sprawdziłem czy możliwym jest przyjęcie zerowych biegunów układu regulacji $z_b = 0$.
+Przystąpiłem do symulacji tak jak w przypadku poprzednich nastawów.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width = \textwidth]{figures/zad6/p1_9_regulator.pdf}
+\caption{Przebiegi zmiennych stanu $x_1 = y$, $x_2$, $x_3$ i sterowania $u$}
+\end{figure}
+
+\indent Dla takiego regulatora, układ działa bardzo szybko, ale też bardzo gwałtownie. Czas regulacji wyjścia wszystkich zmiennych stanu to $1,5s$ czyli 3 próbki.
+
+\indent Ta symulacja wzbudziła jednak moje zaniepokojenie. Zgodnie z przekształceniem biegunów ciągłych na dyskretne, taki biegun w dziedzinie ciągłej znalazł by się w minus nieskończoności. I faktycznie, przy sprawdzeniu poleceniem \texttt{eig(A - B*K)} wartości własnych układu okazało się że bieguny nie znajdują się dokładnie w zerze a w jego bardzo bliskim otoczeniu. Okazuje się że nie jest możliwym dokładne ulokowanie biegunów w zerze. Jest to nierealizowalne w rzeczywistym układzie regulacji, ponieważ taki układ regulowałby się w infinitezymalnym czasie.
+
+\subsection{Wersja 2}
+W wersji drugiej regulatora przyjąłem jeden biegun rzeczywisty $z_{b_1}$ oraz dwa zespolone bieguny sprzężone $z_{b_2} = a + bj$ i $z_{b_3} = a - bj$. Celem kolejnych eksperymentów było pokazanie jaki wpływ mają parametry a i b na trajektorię zmiennych stanów i sterowania. W pierwszych sześciu eksperymentach przyjąłem dodatni biegun rzeczywisty $z_{b_1} = 0,2$, w sześciu ostatnich $z_{b_1} = -0,2$.
+\newpage
+\indent W pierwszym eksperymencie przyjąłem bieguny układu zamkniętego 
+\[
+z_b = 
+\begin{bmatrix}
+    0,2  &  0,1 + 0,2j  & 0,1 - 0,2j    \\     
+\end{bmatrix}
+\]
+
+\begin{figure}[H]
+\centering
+\includegraphics[width = 0.4\textwidth]{figures/zad6/p2_1_bieguny.pdf}
+\caption{Położenie biegunów układu, na tle jednostkowego koła stabilności}
+\end{figure} 
+
+\begin{figure}[H]
+\centering
+\includegraphics[width = \textwidth]{figures/zad6/p2_1_regulator.pdf}
+\caption{Przebiegi zmiennych stanu $x_1 = y$, $x_2$, $x_3$ i sterowania $u$}
+\end{figure}
+
+Duży wpływ na regulację ma tutaj biegun rzeczywisty $z_{b_1} = 0,2$. Sygnał sterujący zmienia się gwałtownie, jednak poruszą się w zakresie relatywnie niskich wartości. Występuje minimalne przeregulowanie wyjścia nie przekraczające $20\%$ wartości skoku. 
+\newpage
+
+\indent W kolejnej symulacji zwiększyłem współczynnik b 
+\[
+z_b = 
+\begin{bmatrix}
+    0,2  &  0,1 + 0,5j  & 0,1 - 0,5j    \\     
+\end{bmatrix}
+\]
+
+\begin{figure}[H]
+\centering
+\includegraphics[width = 0.4\textwidth]{figures/zad6/p2_2_bieguny.pdf}
+\caption{Położenie biegunów układu, na tle jednostkowego koła stabilności}
+\end{figure} 
+
+\begin{figure}[H]
+\centering
+\includegraphics[width = \textwidth]{figures/zad6/p2_2_regulator.pdf}
+\caption{Przebiegi zmiennych stanu $x_1 = y$, $x_2$, $x_3$ i sterowania $u$}
+\end{figure}
+
+Zgodnie z oczekiwaniami, pojawiają się niewielkie oscylacje które są szybko tłumione. Sygnał sterujący nadal zmienia się w szybkim tempie, jednak nadal pozostaje w granicach niskich wartości. 
+\newpage
+
+\indent W kolejnej symulacji zwiększyłem współczynnik b 
+\[
+z_b = 
+\begin{bmatrix}
+    0,2  &  0,1 + 0,8j  & 0,1 - 0,8j    \\     
+\end{bmatrix}
+\]
+
+\begin{figure}[H]
+\centering
+\includegraphics[width = 0.4\textwidth]{figures/zad6/p2_3_bieguny.pdf}
+\caption{Położenie biegunów układu, na tle jednostkowego koła stabilności}
+\end{figure} 
+
+\begin{figure}[H]
+\centering
+\includegraphics[width = \textwidth]{figures/zad6/p2_3_regulator.pdf}
+\caption{Przebiegi zmiennych stanu $x_1 = y$, $x_2$, $x_3$ i sterowania $u$}
+\end{figure}
+
+Przy zwiększaniu wartości urojonej biegunów, układ oscyluje coraz mocniej. W przypadku biegunów $z_b = 0,2 \pm 0,8j$ czas regulacji znacząco wydłuża się. W dodatku amplituda oscylacji wzrasta. 
+\newpage
+
+\indent W kolejnych eksperymentach skupiłem się na rzeczywistej części biegunów 
+\[
+z_b = 
+\begin{bmatrix}
+    0,2  &  0,2 + 0,1j  & 0,2 - 0,1j    \\     
+\end{bmatrix}
+\]
+
+\begin{figure}[H]
+\centering
+\includegraphics[width = 0.4\textwidth]{figures/zad6/p2_4_bieguny.pdf}
+\caption{Położenie biegunów układu, na tle jednostkowego koła stabilności}
+\end{figure} 
+
+\begin{figure}[H]
+\centering
+\includegraphics[width = \textwidth]{figures/zad6/p2_4_regulator.pdf}
+\caption{Przebiegi zmiennych stanu $x_1 = y$, $x_2$, $x_3$ i sterowania $u$}
+\end{figure}
+
+W przypadku niskich wartości części rzeczywistej układ zachowuje się zadowalająco. Czas regulacji jest bardzo krótki, w dodatku sygnał sterujący zmienia się w sposób łagodny.
+\newpage
+
+\indent W kolejnym eksperymencie zwiększyłem wartość części rzeczywistej biegunów
+\[
+z_b = 
+\begin{bmatrix}
+    0,2  &  0,5 + 0,1j  & 0,5 - 0,1j    \\     
+\end{bmatrix}
+\]
+
+\begin{figure}[H]
+\centering
+\includegraphics[width = 0.4\textwidth]{figures/zad6/p2_5_bieguny.pdf}
+\caption{Położenie biegunów układu, na tle jednostkowego koła stabilności}
+\end{figure} 
+
+\begin{figure}[H]
+\centering
+\includegraphics[width = \textwidth]{figures/zad6/p2_5_regulator.pdf}
+\caption{Przebiegi zmiennych stanu $x_1 = y$, $x_2$, $x_3$ i sterowania $u$}
+\end{figure}
+Jak widać na powyższych przebiegach, czas regulacji wydłużył się nieznacznie. W przypadku takiej lokacji biegunów można mówić o parze sprzężonych biegunów dominujących które mają największy wpływ na regulację obiektu. Sygnał sterujący przy takich nastawach ma łagodny przebieg.
+\newpage
+
+\indent W następnej symulacji zwiększyłem części rzeczywiste biegunów, w celu ulokowania ich blisko granicy stabilności
+\[
+z_b = 
+\begin{bmatrix}
+    0,2  &  -0,1 + 0,1j  & -0,1 - 0,1j    \\     
+\end{bmatrix}
+\]
+
+\begin{figure}[H]
+\centering
+\includegraphics[width = 0.4\textwidth]{figures/zad6/p2_6_bieguny.pdf}
+\caption{Położenie biegunów układu, na tle jednostkowego koła stabilności}
+\end{figure} 
+
+\begin{figure}[H]
+\centering
+\includegraphics[width = \textwidth]{figures/zad6/p2_6_regulator.pdf}
+\caption{Przebiegi zmiennych stanu $x_1 = y$, $x_2$, $x_3$ i sterowania $u$}
+\end{figure}
+W przypadku lokacji biegunów dominujących blisko granicy stabilności, czas regulacji wydłuża się. Przeregulowanie nie występuje, a sygnał sterujący zmienia się w sposób łagodny. Ok
+
+\newpage
+
+\indent W ramach ostatnich dwóch eksperymentów postanowiłem sprawdzić jak zachowywać się będzie układ regulacji dla ujemnych wartości współczynnika a 
+\[
+z_b = 
+\begin{bmatrix}
+    0,2  &  -0,8 + 0,1j  & -0,8 - 0,1j    \\     
+\end{bmatrix}
+\]
+
+\begin{figure}[H]
+\centering
+\includegraphics[width = 0.4\textwidth]{figures/zad6/p2_7_bieguny.pdf}
+\caption{Położenie biegunów układu, na tle jednostkowego koła stabilności}
+\end{figure} 
+
+\begin{figure}[H]
+\centering
+\includegraphics[width = \textwidth]{figures/zad6/p2_7_regulator.pdf}
+\caption{Przebiegi zmiennych stanu $x_1 = y$, $x_2$, $x_3$ i sterowania $u$}
+\end{figure}
+
+\newpage
+
+\[
+z_b = 
+\begin{bmatrix}
+    0,2  &  0,8 + 0,1j  & 0,8 - 0,1j    \\     
+\end{bmatrix}
+\]
+
+\begin{figure}[H]
+\centering
+\includegraphics[width = 0.4\textwidth]{figures/zad6/p2_8_bieguny.pdf}
+\caption{Położenie biegunów układu, na tle jednostkowego koła stabilności}
+\end{figure} 
+
+\begin{figure}[H]
+\centering
+\includegraphics[width = \textwidth]{figures/zad6/p2_8_regulator.pdf}
+\caption{Przebiegi zmiennych stanu $x_1 = y$, $x_2$, $x_3$ i sterowania $u$}
+\end{figure}
+
+Okazuje się że im podobnie jak w przypadku biegunów czysto rzeczywistych, gdy współczynnik $a$ będzie ujemny, to pojawią się charakterystyczne oscylacje znaku. Im mniejszy taki biegun, tym dłuższy będzie czas regulacji procesu. Im mniejszy tym bardziej gwałtowne będą zmiany sygnału sterującego.
+\newpage
+
+\section{Zadanie 7}
+Podsumowując wcześniejsze eksperymenty można dojść do kilku wniosków. Dodatnie bieguny czysto rzeczywiste dają najkrótsze czasy regulacji, jednak wynikowe sygnały  sterujące mają tendencję do gwałtownych zmian. W przypadku ujemnych biegunów czysto rzeczywistych, wkrada się efekt \emph{dzwonienia} czyli oscylacji znaku. \\
+\indent W przypadku biegunów z niezerowymi częściami urojonymi, parametry $a$ i $b$ mają ogromny wpływ na jakość regulacji. Gdy parametr $a$ jest dodatni i przyjmuje niskie wartości, to układ szybko i gwałtownie reguluje zmienne stanu. Przy zwiększaniu wartości parametru $a$, czas regulacji wydłuża się ale sygnał sterujący łagodnieje w stosunku do wartości maksymalnej. W przypadku ujemnych wartości tego współczynnika, ponownie zaczynają się pojawiać oscylacje znaku które zaburzają jakoś regulacji.\\
+\indent Podobne oscylacje pojawiają się podczas zwiększania parametru $b$. Im większa część urojona biegunów tym w większe oscylacje wpadają zmienne stanu. 
+\\
+\bigskip
+\\
+\indent Biorąc pod uwagę przeprowadzone symulacje, wybrałem po jednym z dwóch wersji regulatora do dalszych badań.
+Dla wersji pierwszej jest to regulator o biegunach:
+
+\[
+z_b = 
+\begin{bmatrix}
+    0,3  &  0,3  & 0,3    \\     
+\end{bmatrix}
+\]
+
+Czas regulacji tego układu zamyka się w granicach $1,5s$. Dodatkowo, przeregulowanie wyjścia jest nie większe niż 5\% wartości skoku. Sygnał sterujący zmienia się w sposób łagodny i przyjmuje niewielkie wartości.  \\
+\bigskip 
+\\
+\indent Dla wersji drugiej, wybrałem regulator o następujących biegunach:
+
+\[
+z_b = 
+\begin{bmatrix}
+    0,2  &  0,5 + 0,1j  & 0,5 - 0,1j    \\     
+\end{bmatrix}
+\]
+
+Ten układ cechuje się szybkim czasem regulacji wyjścia w granicach $1s$ oraz praktycznie zerowym przeregulowaniem. Dłużej zajmuje układowi wyzerowanie pozostałych zmiennych stanu. Co więcej, układ generuje większe wartości sygnału sterującego, który jednak nie zmienia się w sposób gwałtowny. 
+
+\section{Zadanie 8}
+\indent Regulacja ze sprzężeniami od stanu wymaga aby obserwowalne i dostępne pomiarowo były wszystkie zmienne stanu. Gdy nie jest to możliwe, można zastosować układ obserwatora stanu. Obserwator na podstawie wyjścia procesu i wbudowanego modelu procesu, generuje przebiegi zmiennych stanu. W przypadku gdy tylko część zmiennych stanu jest niedostępna można skorzystać ze obserwatora zredukowanego rzędu.
+
+Obserwator zredukowanego rzędu opisany jest wektorem:
+\[
+\mathbf{L} = 
+\begin{bmatrix}
+    l_1 \\
+    l_2 \\     
+\end{bmatrix}
+\]
+
+Równanie charakterystyczne obserwatora zredukowanego rzędu: 
+
+\begin{equation*}
+\big| z\mathbf{I} - (\mathbf{A_{22}} - \mathbf{L}\mathbf{A_{12}}) \big| = 0 
+\end{equation*}
+
+\newpage
+Macierze $\mathbf{A_{12}}$ i $\mathbf{A_{22}}$ to odpowiednio wydzielone fragmenty macierzy układu $\mathbf{A}$.
+
+\[
+\mathbf{A_{22}} = 
+\begin{bmatrix}
+    0 & 1 \\
+    0 & 0 \\     
+\end{bmatrix}
+\]
+
+\[
+\mathbf{A_{12}} = 
+\begin{bmatrix}
+    1 & 0 \\    
+\end{bmatrix}
+\]
+
+Licząc wyznacznik równania charakterystycznego otrzymałem: 
+\begin{equation*}
+z^2 + l_1z + l_2 = 0 
+\end{equation*}
+
+Parametry $l_1$, $l_2$ dobrałem taki w sposób aby ulokować bieguny obserwatora $z_0$, $z_1$ 
+
+\begin{equation*}
+(z - z_0)(z - z_1) = 0
+\end{equation*}
+
+Ostatecznie:
+
+\[ 
+\begin{bmatrix}
+    l_1 \\
+    l_2 \\   
+\end{bmatrix}
+=
+\begin{bmatrix}
+    -(z_0 + z_1) \\
+    z_0z_1 \\    
+\end{bmatrix}
+\]
+
+Do poprawnej implementacji obserwatora, potrzebne było również wyznaczenie sygnału pomocniczego $z[k]$.
+
+\begin{equation*}
+z[k+1] = (\mathbf{A_{22}} - \mathbf{L}\mathbf{A_{12}})w[k] + (\mathbf{A_{21}} - \mathbf{L}\mathbf{A_{11}})y[k] + (\mathbf{B_{2}} - \mathbf{L}\mathbf{B_{1}})u[k]
+\end{equation*}
+
+Gdzie sygnał $w[k]$ to wektor złożonych ze zmiennych stanu które nie są dostępne i 
+
+\begin{equation*}
+w[k] = z[k] + \mathbf{L}y[k]
+\end{equation*}
+
+Po podstawieniu wartości otrzymałem:
+
+\[ 
+z[k+1]
+=
+\begin{bmatrix}
+    -l_1 & 1 \\
+    -l_2 & 0 \\    
+\end{bmatrix}
+w[k] +
+\begin{bmatrix}
+    -1,3904 - 7,576l_{1} \\
+    0,0636 - 7,576l_{2}\\    
+\end{bmatrix}
+y[k] + 
+\begin{bmatrix}
+    -0,3684 - 0,4496l_{1} \\
+    0,0464 - 0,4496l_{2}\\    
+\end{bmatrix}
+u[k]
+\]
+
+\newpage
+
+\begin{figure}[H]
+\centering
+\includegraphics[width = \textwidth]{figures/zad8/system.pdf}
+\caption{Szczegółowa struktura układu obserwatora zredukowanego rzędu}
+\end{figure} 
+
+\begin{figure}[H]
+\centering
+\includegraphics[width = \textwidth]{figures/zad8/general.pdf}
+\caption{Ogólna struktura układu regulacji z obserwatorem zredukowanego rzędu}
+\end{figure} 
+
+\section{Zadanie 9}
+Po wyznaczeniu struktury i obliczeniu parametrów obserwatora zredukowanego rzędu, przystąpiłem do symulacji układu testowania obserwatora. W tym układzie, obserwator miał tylko naśladować przebiegi zmiennych stanu, regulator działał na faktycznych pomiarach. Skorzystałem z dwóch nastawów regulatorów, wybranych w punkcie 7. 
+
+\indent W pierwszym eksperymencie przyjąłem bieguny regulatora:
+
+\[
+\begin{bmatrix}
+    z_{0} \\
+    z_{1} \\    
+\end{bmatrix}
+=
+\begin{bmatrix}
+    0,2 \\
+    0,2 \\    
+\end{bmatrix}
+\]
+
+Dla regulatora w wersji pierwszej uzyskałem następujące przebiegi zmiennych stanu:
+
+\begin{figure}[H]
+\centering
+\includegraphics[width = 0.6\textwidth]{figures/zad9/regulator1_x2_1.pdf}
+\caption{Porównanie rzeczywistego i zaobserwowanego przebiegu drugiej zmiennej stanu}
+\end{figure} 
+
+\begin{figure}[H]
+\centering
+\includegraphics[width = 0.6\textwidth]{figures/zad9/regulator1_x3_1.pdf}
+\caption{Porównanie rzeczywistego i zaobserwowanego przebiegu trzeciej zmiennej stanu}
+\end{figure} 
+\newpage
+Analogiczne przebiegi uzyskałem dla regulatora w wersji 2:
+
+\begin{figure}[H]
+\centering
+\includegraphics[width = 0.6\textwidth]{figures/zad9/regulator2_x2_1.pdf}
+\caption{Porównanie rzeczywistego i zaobserwowanego przebiegu drugiej zmiennej stanu}
+\end{figure} 
+
+\begin{figure}[H]
+\centering
+\includegraphics[width = 0.6\textwidth]{figures/zad9/regulator2_x3_1.pdf}
+\caption{Porównanie rzeczywistego i zaobserwowanego przebiegu trzeciej zmiennej stanu}
+\end{figure} 
+
+Dla biegunów o małym module, regulator szybko nadąża za rzeczywistym przebiegiem zmiennych stanu. Początkowa rozbieżność w odpowiedziach wynika z niezerowych warunków początkowych modelu, ponieważ w obserwatorze zakładamy zerowe warunki początkowe. Warto w tym miejscu zastanowić się czy w celu przyśpieszenia obserwatoroa można zastosować zerowe bieguny obserwatora. Okazuje się że nie jest to możliwe, gdyż w praktyce oznaczałoby to nieskończenie szybkie nadążanie. Podobnie jak w przypadku regulatorów, takie przekształcenie oznaczało by bieguny obserwatora ciągłego w minus nieskończoności, które nie są realizowalne.
+
+\newpage
+\indent Kolejną symulację przeprowadziłem dla biegunów o dużym module:
+
+\[
+\begin{bmatrix}
+    z_{0} \\
+    z_{1} \\    
+\end{bmatrix}
+=
+\begin{bmatrix}
+    0,8 \\
+    0,8 \\    
+\end{bmatrix}
+\]
+
+Przebiegi dla regulatora w wersji pierwszej:
+\begin{figure}[H]
+\centering
+\includegraphics[width = 0.6\textwidth]{figures/zad9/regulator1_x2_2.pdf}
+\caption{Porównanie rzeczywistego i zaobserwowanego przebiegu drugiej zmiennej stanu}
+\end{figure} 
+
+\begin{figure}[H]
+\centering
+\includegraphics[width = 0.6\textwidth]{figures/zad9/regulator1_x3_2.pdf}
+\caption{Porównanie rzeczywistego i zaobserwowanego przebiegu trzeciej zmiennej stanu}
+\end{figure} 
+\newpage
+
+
+Przebiegi dla regulatora w wersji drugiej:
+\begin{figure}[H]
+\centering
+\includegraphics[width = 0.6\textwidth]{figures/zad9/regulator2_x2_2.pdf}
+\caption{Porównanie rzeczywistego i zaobserwowanego przebiegu drugiej zmiennej stanu}
+\end{figure} 
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[width = 0.6\textwidth]{figures/zad9/regulator2_x3_2.pdf}
+\caption{Porównanie rzeczywistego i zaobserwowanego przebiegu trzeciej zmiennej stanu}
+\end{figure} 
+
+Dla biegunów o dużym module, odpowiedź obserwatora znacząco różni się od odpowiedzi obiektu. W przypadku obiektów dyskretnych, moduły biegunów obserwatorów powinny być mniejsze niż bieguny regulatora.
+\newpage
+
+
+\indent Ostatnią, dodatkową, symulację przeprowadziłem dla biegunów obserwatora zredukowanego rzędu o ujemnej części rzeczywistej:
+
+\[
+\begin{bmatrix}
+    z_{0} \\
+    z_{1} \\    
+\end{bmatrix}
+=
+\begin{bmatrix}
+    -0,3 \\
+    -0,3 \\    
+\end{bmatrix}
+\]
+
+Przebiegi dla regulatora w wersji pierwszej:
+\begin{figure}[H]
+\centering
+\includegraphics[width = 0.6\textwidth]{figures/zad9/regulator1_x2_3.pdf}
+\caption{Porównanie rzeczywistego i zaobserwowanego przebiegu drugiej zmiennej stanu}
+\end{figure} 
+
+\begin{figure}[H]
+\centering
+\includegraphics[width = 0.6\textwidth]{figures/zad9/regulator1_x3_3.pdf}
+\caption{Porównanie rzeczywistego i zaobserwowanego przebiegu trzeciej zmiennej stanu}
+\end{figure} 
+\newpage
+
+
+Przebiegi dla regulatora w wersji drugiej:
+\begin{figure}[H]
+\centering
+\includegraphics[width = 0.6\textwidth]{figures/zad9/regulator2_x2_3.pdf}
+\caption{Porównanie rzeczywistego i zaobserwowanego przebiegu drugiej zmiennej stanu}
+\end{figure} 
+
+\begin{figure}[H]
+\centering
+\includegraphics[width = 0.6\textwidth]{figures/zad9/regulator2_x3_3.pdf}
+\caption{Porównanie rzeczywistego i zaobserwowanego przebiegu trzeciej zmiennej stanu}
+\end{figure} 
+
+Podobnie jak w przypadku biegunów regulatora, ujemna część rzeczywista biegunów obserwatora zredukowanego rzędu powoduje oscylacyjne przebiegi sygnałów wychodzących z obserwatora. Ponieważ na podstawie tych przebiegów reguluje się obiekt, należy unikać biegunów wprowadzających oscylacje. 
+\newpage
+\section{Zadanie 10}
+\indent W ramach ostatniego eksperymentu, przeprowadziłem symulacje układu regulacji w sytuacji gdy zmienne stanu $x_2[k]$ i $x_3[k]$ są niemierzalne i w regulatorze wykorzystuje się stan obserwatora.
+\\ \bigskip
+\indent Symulacja 1 - regulator w wersji pierwszej w parze z  szybkim obserwatorem.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width = \textwidth]{figures/zad10/reg_1_obs_1.pdf}
+\caption{Przebiegi zmiennych stanu i sygnału sterującego w układzie regulacji z obserwatorem zredukowanego rzędu}
+\end{figure}
+
+Na powyższych przebiegach widać że czas regulacji układu jest bardzo szybki. Niestety, w układzie występuje bardzo duże przeregulowanie zmiennych stanu. Wynika to z nieodpowiednich warunków początkowych obserwatora. Sygnał sterujący przyjmuje wartości z zakresu $[0,60]$, które są znacznie większe od tych które można było zaobserwować w układzie regulacji bez obserwatora.
+Dodatkowo, sam sygnał sterujący zmienia się bardzo gwałtownie, szybko przyjmuje wartość maksymalną i tak samo szybko maleje do zera.
+\newpage
+
+\indent Symulacja 2 - regulator w wersji pierwszej wraz z wolnym obserwatorem
+\begin{figure}[H]
+\centering
+\includegraphics[width = \textwidth]{figures/zad10/reg_1_obs_2.pdf}
+\caption{Przebiegi zmiennych stanu i sygnału sterującego w układzie regulacji z obserwatorem zredukowanego rzędu}
+\end{figure}
+
+W przypadku zastosowania wolno nadążającego obserwatora, układ regulacji bez zaskoczeń działa znacznie wolniej niż jego poprzednik. Ponownie występują spore przeregulowania zmiennych stanu, w dodatku czas regulacji wydłużył się trzykrotnie. Sygnał sterujący zmienią się łagodniej ale jego wartość maksymalna również wzrosła trzykrotnie.
+\newpage
+ 
+\indent Symulacja 3 - regulator w wersji drugiej i szybki  obserwator
+\begin{figure}[H]
+\centering
+\includegraphics[width = \textwidth]{figures/zad10/reg_2_obs_1.pdf}
+\caption{Przebiegi zmiennych stanu i sygnału sterującego w układzie regulacji z obserwatorem zredukowanego rzędu}
+\end{figure}
+
+W układzie regulatora w wersji drugiej i szybkiego obserwatora następuje szybkie zerowanie zmiennych stanu, podobnie jak w przypadku regulatora w wersji pierwszej. Z przebiegów wynika że w takim rozwiązaniu przeregulowania są nieznacznie większe i sygnał sterujący osiąga większą wartość ale za to sygnał sterujący  łagodniej dąży do 0 niż od tego w wersji z symulacji 1. 
+\newpage 
+
+\indent Symulacja 4 - regulator w wersji drugiej w parze z wolnym  obserwatorem
+\begin{figure}[H]
+\centering
+\includegraphics[width = \textwidth]{figures/zad10/reg_2_obs_2.pdf}
+\caption{Przebiegi zmiennych stanu i sygnału sterującego w układzie regulacji z obserwatorem zredukowanego rzędu}
+\end{figure}
+
+Przebiegi z symulacji układu z regulatorem w wersji drugiej i wolnym obserwatorem jednoznacznie wskazują że jest to najgorsze rozwiązanie z dotychczas zasymulowanych. Zmienne stanu wolno dążą do zera, pojawiają się bardzo duże przeregulowania wynikające z nieodpowiadających warunków początkowych a sygnał sterujący zmienia się w bardzo dużym zakresie. Jedyną zaletą tego rozwiązania jest fakt że sygnał sterujący zmienia się najbardziej łagodny sposób.
+\newpage 
+
+
+
+\end{document}
